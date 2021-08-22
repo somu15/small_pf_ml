@@ -233,8 +233,8 @@ class DrawRandom:
 
         return out
 
-    def FluidRandom(self):
-        out = np.zeros(6)
+    def FluidRandom(self,N=1):
+        out = np.zeros((N,6))
         lower, upper = np.log(0.005), np.log(0.05)
         mu, sigma = np.log(0.025), 0.5
         rv0 = truncnorm((lower - mu) / sigma, (upper - mu) / sigma, loc=mu, scale=sigma) # Viscosity
@@ -242,12 +242,12 @@ class DrawRandom:
         lower, upper = np.log(0.5), np.log(1.5)
         mu, sigma = np.log(0.75), 0.25
         rv2 = truncnorm((lower - mu) / sigma, (upper - mu) / sigma, loc=mu, scale=sigma) # Velocity
-        out[0] = np.exp(rv0.rvs())
-        out[1] = (rv1.rvs())
-        out[2] = -np.exp(rv2.rvs()) # u_Bottom
-        out[3] = np.exp(rv2.rvs()) # u_Top
-        out[4] = -np.exp(rv2.rvs()) # u_Left
-        out[5] = np.exp(rv2.rvs()) # u_Right
+        out[:,0] = np.exp(rv0.rvs())
+        out[:,1] = (rv1.rvs())
+        out[:,2] = -np.exp(rv2.rvs()) # u_Bottom
+        out[:,3] = np.exp(rv2.rvs()) # u_Top
+        out[:,4] = -np.exp(rv2.rvs()) # u_Left
+        out[:,5] = np.exp(rv2.rvs()) # u_Right
         return out
 
     def FluidLHS(self, Nsamps=None):

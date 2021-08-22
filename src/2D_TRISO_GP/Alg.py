@@ -85,9 +85,9 @@ Iters = 600
 ## Subset simultion with HF-LF and GP
 
 uni = uniform()
-Nsub = 500
+Nsub = 1000
 Psub = 0.1
-Nlim = 5
+Nlim = 4
 y1 = np.zeros((Nsub,Nlim))
 y1_lim = np.zeros(Nlim)
 y1_lim[Nlim-1] = value
@@ -181,7 +181,7 @@ for kk in np.arange(1,Nlim,1):
         count = count + 1
 
         for jj in np.arange(0,Ndim,1):
-            rv1 = norm(loc=np.log(markov_seed[jj]),scale=prop_std[jj])
+            rv1 = norm(loc=np.log(markov_seed[jj]),scale=0.5) # prop_std[jj]
             prop = np.exp(rv1.rvs())
             r = np.log(DR1.TrisoPDF(rv_req=prop, index=jj)) - np.log(DR1.TrisoPDF(rv_req=(markov_seed[jj]),index=jj)) # np.log(rv.pdf((prop)))-np.log(rv.pdf((inp1[ind_max,jj,kk])))
             if r>np.log(uni.rvs()):
@@ -244,7 +244,7 @@ for kk in np.arange(0,Nlim,1):
 cov_req = np.sqrt(cov_sq)
 
 filename = 'Alg_Run.pickle'
-os.chdir('/home/dhullaks/projects/bison/examples/TRISO/2D_Alg_GP')
+os.chdir('/home/dhullaks/projects/Small_Pf_code/src/2D_TRISO_GP')
 with open(filename, 'wb') as f:
     pickle.dump(y1, f)
     pickle.dump(y1_lim, f)

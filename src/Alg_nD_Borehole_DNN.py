@@ -211,8 +211,10 @@ y_LF_GP = ML0.DNN_pred(inp_LFtrain,y_HF_LFtrain,DNN_model,Ndim,inp_GPtrain)[0]
 y_HF_GP = np.array((LS1.Scalar_Borehole_HF_nD(inp_GPtrain)))
 # std_check = np.std(InvNorm2(np.array(samples0),y_HF_LFtrain),axis=0)
 y_GPtrain = y_HF_GP - y_LF_GP
+# ML = ML_TF(obs_ind = Norm1(inp_GPtrain,inp_GPtrain,Ndim), obs = Norm3(y_GPtrain,y_GPtrain))
+# amp1, len1, var1 = ML.GP_train(amp_init=1., len_init=1., var_init=1., num_iters = 1000)
 ML = ML_TF(obs_ind = Norm1(inp_GPtrain,inp_GPtrain,Ndim), obs = Norm3(y_GPtrain,y_GPtrain))
-amp1, len1, var1 = ML.GP_train(amp_init=1., len_init=1., var_init=1., num_iters = 1000)
+amp1, len1 = ML.GP_train(amp_init=1., len_init=1., num_iters = 1000)
 Iters = 300
 
 # Ninit_GP = 500
@@ -228,7 +230,7 @@ Iters = 300
 ## Subset simultion with HF-LF and GP
 
 uni = uniform()
-Nsub = 5000
+Nsub = 500
 Psub = 0.1
 Nlim = 5
 y1 = np.zeros((Nsub,Nlim))
@@ -240,8 +242,8 @@ u_lim_vec = np.array([2,2,2,2,2,2,2,2,2])
 
 u_GP = np.empty(1, dtype = float)
 var_GP = np.empty(1, dtype = float)
-std_GPdiff = np.empty(1, dtype = float)
-var_GP[0] = var1.numpy().reshape(1)
+# std_GPdiff = np.empty(1, dtype = float)
+# var_GP[0] = var1.numpy().reshape(1)
 subs_info = np.empty(1, dtype = float)
 subs_info[0] = np.array(0).reshape(1)
 LF_plus_GP = np.empty(1, dtype = float)
@@ -255,15 +257,18 @@ for ii in np.arange(0,Nsub,1):
     # LF = np.array(InvNorm3(np.mean(np.array(samples0),axis=0),y_HF_LFtrain))
     LF = ML0.DNN_pred(inp_LFtrain,y_HF_LFtrain,DNN_model,Ndim,inpp)[0]
     inp1[ii,:,0] = inp
-    samples1 = ML.GP_predict(amplitude_var = amp1, length_scale_var=len1, observation_noise_variance_var=var1, pred_ind = Norm1(inpp,inp_GPtrain,Ndim), num_samples=num_s)
-    GP_diff = InvNorm3(np.mean(np.array(samples1),axis=0),y_GPtrain)
-    # if ii > 9:
-    #     additive = np.percentile(y1[1:ii,0],90)
-    additive = 0.0
-    u_check = (np.abs(LF + GP_diff - additive))/np.std(InvNorm3(np.array(samples1),y_GPtrain),axis=0)
+    # samples1 = ML.GP_predict(amplitude_var = amp1, length_scale_var=len1, observation_noise_variance_var=var1, pred_ind = Norm1(inpp,inp_GPtrain,Ndim), num_samples=num_s)
+    # GP_diff = InvNorm3(np.mean(np.array(samples1),axis=0),y_GPtrain)
+    # # if ii > 9:
+    # #     additive = np.percentile(y1[1:ii,0],90)
+    # additive = 0.0
+    # u_check = (np.abs(LF + GP_diff - additive))/np.std(InvNorm3(np.array(samples1),y_GPtrain),axis=0)
+    GP_diff = ML.GP_predict_mean(amplitude_var = amp1, length_scale_var=len1, pred_ind = Norm1(inpp,inp_GPtrain,Ndim)).reshape(1)
+    additive = value
+    u_check = (np.abs(LF + GP_diff-additive))/ML.GP_predict_std(amplitude_var = amp1, length_scale_var=len1, pred_ind = Norm1(inpp,inp_GPtrain,Ndim)).reshape(1)
     # u_check = (np.abs(LF + GP_diff - value))/np.std(InvNorm3(np.array(samples1),y_GPtrain),axis=0)
     u_GP = np.concatenate((u_GP, np.array(u_check).reshape(1)))
-    std_GPdiff = np.concatenate((std_GPdiff, np.array(np.std(InvNorm3(np.array(samples1),y_GPtrain),axis=0)).reshape(1)))
+    # std_GPdiff = np.concatenate((std_GPdiff, np.array(np.std(InvNorm3(np.array(samples1),y_GPtrain),axis=0)).reshape(1)))
     u_lim = u_lim_vec[0]
     print(ii)
     if u_check > u_lim:
@@ -277,14 +282,16 @@ for ii in np.arange(0,Nsub,1):
         LF_plus_GP = np.concatenate((LF_plus_GP, (LF + np.array(GP_diff).reshape(1))))
         GP_pred = np.concatenate((GP_pred, (np.array(GP_diff).reshape(1))))
         # ML = ML_TF(obs_ind = (np.array(inp_GPtrain))[:,:,0], obs = (np.array(y_HF_GP)[:,:,0]-np.array(y_LF_GP)[:,:,0])[:,0])
+        # ML = ML_TF(obs_ind = Norm1(inp_GPtrain,inp_GPtrain,Ndim), obs = Norm3(y_GPtrain,y_GPtrain))
+        # amp1, len1, var1 = ML.GP_train(amp_init=amp1, len_init=len1, var_init=var1, num_iters = Iters)
+        # var_GP = np.concatenate((var_GP, var1.numpy().reshape(1)))
         ML = ML_TF(obs_ind = Norm1(inp_GPtrain,inp_GPtrain,Ndim), obs = Norm3(y_GPtrain,y_GPtrain))
-        amp1, len1, var1 = ML.GP_train(amp_init=amp1, len_init=len1, var_init=var1, num_iters = Iters)
-        var_GP = np.concatenate((var_GP, var1.numpy().reshape(1)))
+        amp1, len1 = ML.GP_train(amp_init=amp1, len_init=len1, num_iters = Iters)
         subs_info = np.concatenate((subs_info, np.array(0).reshape(1)))
 
 u_GP = np.delete(u_GP, 0)
-var_GP = np.delete(var_GP, 0)
-std_GPdiff = np.delete(std_GPdiff, 0)
+# var_GP = np.delete(var_GP, 0)
+# std_GPdiff = np.delete(std_GPdiff, 0)
 subs_info = np.delete(subs_info, 0)
 LF_plus_GP = np.delete(LF_plus_GP, 0)
 GP_pred = np.delete(GP_pred, 0)
@@ -300,7 +307,7 @@ for kk in np.arange(1,Nlim,1):
     y1_lim[kk-1] = np.min(y1[0:(int(Psub*Nsub)),kk])
     indices = (-y1[:,kk-1]).argsort()[:(int(Psub*Nsub))]
     inp1[0:(int(Psub*Nsub)),:,kk] = inp1[indices,:,kk-1]
-    for ii in np.arange((int(Psub*Nsub)),(Nsub),1):
+    for ii in np.arange((int(Psub*Nsub)),Nsub,1):
         print(kk)
         print(ii)
         nxt = np.zeros((1,Ndim))
@@ -333,6 +340,7 @@ for kk in np.arange(1,Nlim,1):
 
 
             r = np.log(DR1.BoreholePDF(rv_req=prop, index=jj)) - np.log(DR1.BoreholePDF(rv_req=(inp1[ind_max,jj,kk]),index=jj)) # np.log(rv.pdf((prop)))-np.log(rv.pdf((inp1[ind_max,jj,kk])))
+            print(r)
             if r>np.log(uni.rvs()):
                 nxt[0,jj] = prop
             else:
@@ -341,17 +349,20 @@ for kk in np.arange(1,Nlim,1):
         # samples0 = ML0.GP_predict(amplitude_var = amp0, length_scale_var=len0, observation_noise_variance_var=var0, pred_ind = Norm1(inpp,inp_LFtrain,Ndim), num_samples=num_s)
         # LF = np.array(InvNorm3(np.mean(np.array(samples0),axis=0),y_HF_LFtrain))
         LF = ML0.DNN_pred(inp_LFtrain,y_HF_LFtrain,DNN_model,Ndim,inpp)[0]
-        samples1 = ML.GP_predict(amplitude_var = amp1, length_scale_var=len1, observation_noise_variance_var=var1, pred_ind = Norm1(inpp,inp_GPtrain,Ndim), num_samples=num_s)
-        GP_diff = InvNorm3(np.mean(np.array(samples1),axis=0),y_GPtrain)
-        # if ii > 9: # and kk < (Nlim-1):
-        #     additive = np.percentile(y1[1:ii,kk],90)
-        # else:
-        #     additive = value
+        # samples1 = ML.GP_predict(amplitude_var = amp1, length_scale_var=len1, observation_noise_variance_var=var1, pred_ind = Norm1(inpp,inp_GPtrain,Ndim), num_samples=num_s)
+        # GP_diff = InvNorm3(np.mean(np.array(samples1),axis=0),y_GPtrain)
+        # # if ii > 9: # and kk < (Nlim-1):
+        # #     additive = np.percentile(y1[1:ii,kk],90)
+        # # else:
+        # #     additive = value
+        # additive = y1_lim[kk-1]
+        # u_check = (np.abs(LF + GP_diff - additive))/np.std(InvNorm3(np.array(samples1),y_GPtrain),axis=0)
+        GP_diff = ML.GP_predict_mean(amplitude_var = amp1, length_scale_var=len1, pred_ind = Norm1(inpp,inp_GPtrain,Ndim)).reshape(1)
         additive = y1_lim[kk-1]
-        u_check = (np.abs(LF + GP_diff - additive))/np.std(InvNorm3(np.array(samples1),y_GPtrain),axis=0)
+        u_check = (np.abs(LF + GP_diff-additive))/ML.GP_predict_std(amplitude_var = amp1, length_scale_var=len1, pred_ind = Norm1(inpp,inp_GPtrain,Ndim)).reshape(1)
         # u_check = (np.abs(LF + GP_diff - value))/np.std(InvNorm3(np.array(samples1),y_GPtrain),axis=0)
         u_GP = np.concatenate((u_GP, np.array(u_check).reshape(1)))
-        std_GPdiff = np.concatenate((std_GPdiff, np.array(np.std(InvNorm3(np.array(samples1),y_GPtrain),axis=0)).reshape(1)))
+        # std_GPdiff = np.concatenate((std_GPdiff, np.array(np.std(InvNorm3(np.array(samples1),y_GPtrain),axis=0)).reshape(1)))
         u_lim = u_lim_vec[kk]
         if u_check > u_lim: # and ii > (int(Psub*Nsub)+num_retrain):
             y_nxt = LF + GP_diff
@@ -364,9 +375,11 @@ for kk in np.arange(1,Nlim,1):
             LF_plus_GP = np.concatenate((LF_plus_GP, (LF + np.array(GP_diff).reshape(1))))
             GP_pred = np.concatenate((GP_pred, (np.array(GP_diff).reshape(1))))
             # ML = ML_TF(obs_ind = (np.array(inp_GPtrain))[:,:,0], obs = (np.array(y_HF_GP)[:,:,0]-np.array(y_LF_GP)[:,:,0])[:,0])
+            # ML = ML_TF(obs_ind = Norm1(inp_GPtrain,inp_GPtrain,Ndim), obs = Norm3(y_GPtrain,y_GPtrain))
+            # amp1, len1, var1 = ML.GP_train(amp_init=amp1, len_init=len1, var_init=var1, num_iters = Iters)
+            # var_GP = np.concatenate((var_GP, var1.numpy().reshape(1)))
             ML = ML_TF(obs_ind = Norm1(inp_GPtrain,inp_GPtrain,Ndim), obs = Norm3(y_GPtrain,y_GPtrain))
-            amp1, len1, var1 = ML.GP_train(amp_init=amp1, len_init=len1, var_init=var1, num_iters = Iters)
-            var_GP = np.concatenate((var_GP, var1.numpy().reshape(1)))
+            amp1, len1 = ML.GP_train(amp_init=amp1, len_init=len1, num_iters = Iters)
             subs_info = np.concatenate((subs_info, np.array(0).reshape(1)))
 
         if (y_nxt)>y1_lim[kk-1]:
@@ -375,6 +388,8 @@ for kk in np.arange(1,Nlim,1):
         else:
             inp1[ii,:,kk] = inp1[ind_max,:,kk]
             y1[ii,kk] = y1[ind_max,kk]
+
+
 
 y1_lim[Nlim-1] = value
 Pf = 1
@@ -387,40 +402,78 @@ for kk in np.arange(0,Nlim,1):
     cov_sq = cov_sq + ((1-Pi)/(Pi*Nsub))
 cov_req = np.sqrt(cov_sq)
 
-filename = 'Alg_Run1_DNN.pickle'
-with open(filename, 'wb') as f:
-    pickle.dump(y1, f)
-    pickle.dump(y1_lim, f)
-    pickle.dump(Pf, f)
-    pickle.dump(cov_req, f)
-    pickle.dump(Nlim, f)
-    pickle.dump(Nsub, f)
-    pickle.dump(Pi_sto, f)
-    pickle.dump(u_GP, f)
-    pickle.dump(var_GP, f)
-    pickle.dump(y_GPtrain, f)
-    pickle.dump(y_HF_GP, f)
-    pickle.dump(y_LF_GP, f)
+filename = 'Alg_Run1.pickle'
+# with open(filename, 'wb') as f:
+#     pickle.dump(y1, f)
+#     pickle.dump(y1_lim, f)
+#     pickle.dump(Pf, f)
+#     pickle.dump(cov_req, f)
+#     pickle.dump(Nlim, f)
+#     pickle.dump(Nsub, f)
+#     pickle.dump(Pi_sto, f)
+#     pickle.dump(u_GP, f)
+#     pickle.dump(var_GP, f)
+#     pickle.dump(y_GPtrain, f)
+#     pickle.dump(y_HF_GP, f)
+#     pickle.dump(y_LF_GP, f)
 
-# with open(filename, 'rb') as handle:
-#     y1 = pickle.load(handle)
-#     y1_lim = pickle.load(handle)
-#     Pf = pickle.load(handle)
-#     cov_req = pickle.load(handle)
-#     Nlim = pickle.load(handle)
-#     Nsub = pickle.load(handle)
-#     Pi_sto = pickle.load(handle)
-#     u_GP = pickle.load(handle)
-#     var_GP = pickle.load(handle)
-#     y_GPtrain = pickle.load(handle)
-#     y_HF_GP = pickle.load(handle)
-#     y_LF_GP = pickle.load(handle)
+# pickle.dump(y1, f)
+# pickle.dump(y1_lim, f)
+# pickle.dump(Pf, f)
+# pickle.dump(cov_req, f)
+# pickle.dump(Nlim, f)
+# pickle.dump(Nsub, f)
+# pickle.dump(Pi_sto, f)
+# pickle.dump(Indicator, f)
 
-# plt.plot(Out_data[0:2499]*1e-6,label='Subset 0')
-# plt.plot(Out_data[2500:4999]*1e-6,label='Subset 1')
-# plt.plot(Out_data[4999:7499]*1e-6,label='Subset 2')
-# plt.plot(Out_data[7499:9999]*1e-6,label='Subset 3')
-# # plt.plot(y1[1000:2000,4],label='Subset 4')
-# plt.xlabel('Iteration')
-# plt.ylabel('Stress-strength (MPa)')
-# plt.legend(loc='lower left')
+with open(filename, 'rb') as handle:
+    y1 = pickle.load(handle)
+    y1_lim = pickle.load(handle)
+    Pf = pickle.load(handle)
+    cov_req = pickle.load(handle)
+    Nlim = pickle.load(handle)
+    Nsub = pickle.load(handle)
+    Pi_sto = pickle.load(handle)
+    Indicator = pickle.load(handle)
+
+with open(filename, 'rb') as handle:
+    y1 = pickle.load(handle)
+    y1_lim = pickle.load(handle)
+    Pf = pickle.load(handle)
+    cov_req = pickle.load(handle)
+    Nlim = pickle.load(handle)
+    Nsub = pickle.load(handle)
+    Pi_sto = pickle.load(handle)
+    u_GP = pickle.load(handle)
+    y_GPtrain = pickle.load(handle)
+    y_HF_GP = pickle.load(handle)
+    y_LF_GP = pickle.load(handle)
+    # inp_GPtrain = pickle.load(handle)
+    subs_info = pickle.load(handle)
+    Indicator = pickle.load(handle)
+    # inp_GPtrain = pickle.load(handle)
+    # inp_LFtrain = pickle.load(handle)
+    # y_HF_LFtrain = pickle.load(handle)
+    
+    # y1 = pickle.load(handle)
+    # y1_lim = pickle.load(handle)
+    # Pf = pickle.load(handle)
+    # cov_req = pickle.load(handle)
+    # Nlim = pickle.load(handle)
+    # Nsub = pickle.load(handle)
+    # Pi_sto = pickle.load(handle)
+    # u_GP = pickle.load(handle)
+    # y_GPtrain = pickle.load(handle)
+    # y_HF_GP = pickle.load(handle)
+    # y_LF_GP = pickle.load(handle)
+    # subs_info = pickle.load(handle)
+    # Indicator = pickle.load(handle)
+    
+plt.scatter(y_HF_GP[0:580],y_LF_GP[0:580])
+plt.xlabel('HF TRISO stress difference')
+plt.ylabel('LF TRISO stress difference')
+plt.xlim([-1.2e9,0])
+plt.ylim([-1.2e9,0])
+
+def reject_outliers(data, m=1):
+    return [abs(data - np.mean(data)) < m * np.std(data)]

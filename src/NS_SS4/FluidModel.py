@@ -28,7 +28,7 @@ class FluidModel:
         uright = u_Right
         uleft = u_Left
 
-        file1 = open('/home/dhullaks/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/NS4.i', 'r')
+        file1 = open('/Users/dhulls/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/NS_R4.i', 'r')
         Lines = file1.readlines()
         Lines[113] = "    "+"prop_values = '"+str(dens)+" "+str(visc)+"'\n"
         Lines[80] = "    "+"values = '"+str(utop)+" 0.0 0.0'\n"
@@ -36,14 +36,14 @@ class FluidModel:
         Lines[92] = "    "+"values = '0.0 "+str(-uleft)+" 0.0'\n"
         Lines[98] = "    "+"values = '0.0 "+str(uright)+" 0.0'\n"
 
-        file1 = open('/home/dhullaks/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/NS4.i', 'w')
+        file1 = open('/Users/dhulls/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/NS_R4.i', 'w')
         file1.writelines(Lines)
         file1.close()
 
-        os.chdir('/home/dhullaks/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady')
-        os.system('mpiexec -n 2 /home/dhullaks/projects/moose/modules/navier_stokes/navier_stokes-opt -i NS4.i')
+        os.chdir('/Users/dhulls/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady')
+        os.system('mpiexec -n 2 /Users/dhulls/projects/moose/modules/navier_stokes/navier_stokes-opt -i NS_R4.i')
 
-        path1 = '/home/dhullaks/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/NS4.csv'
+        path1 = '/Users/dhulls/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/NS_R4.csv'
         with open(path1) as csvfile:
             readCSV = csv.reader(csvfile, delimiter=',')
             Samp0 = []
@@ -67,7 +67,7 @@ class FluidModel:
         uright = u_Right
         uleft = u_Left
 
-        file1 = open('/home/dhullaks/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/NS1.i', 'r')
+        file1 = open('/Users/dhulls/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/NS1.i', 'r')
         Lines = file1.readlines()
         Lines[113] = "    "+"prop_values = '"+str(dens)+" "+str(visc)+"'\n"
         Lines[80] = "    "+"values = '"+str(utop)+" 0.0 0.0'\n"
@@ -75,14 +75,14 @@ class FluidModel:
         Lines[92] = "    "+"values = '0.0 "+str(-uleft)+" 0.0'\n"
         Lines[98] = "    "+"values = '0.0 "+str(uright)+" 0.0'\n"
 
-        file1 = open('/home/dhullaks/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/NS1.i', 'w')
+        file1 = open('/Users/dhulls/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/NS1.i', 'w')
         file1.writelines(Lines)
         file1.close()
 
-        os.chdir('/home/dhullaks/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady')
-        os.system('mpiexec -n 2 /home/dhullaks/projects/moose/modules/navier_stokes/navier_stokes-opt -i NS1.i')
+        os.chdir('/Users/dhulls/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady')
+        os.system('mpiexec -n 2 /Users/dhulls/projects/moose/modules/navier_stokes/navier_stokes-opt -i NS1.i')
 
-        path1 = '/home/dhullaks/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/NS1.csv'
+        path1 = '/Users/dhulls/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/NS1.csv'
         with open(path1) as csvfile:
             readCSV = csv.reader(csvfile, delimiter=',')
             Samp0 = []
@@ -106,7 +106,7 @@ class FluidModel:
         uright = u_Right
         uleft = u_Left
 
-        file1 = open('/home/dhullaks/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/S.i', 'r')
+        file1 = open('/Users/dhulls/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/S.i', 'r')
         Lines = file1.readlines()
         Lines[109] = "    "+"prop_values = '"+str(dens)+" "+str(visc)+"'\n"
         Lines[76] = "    "+"values = '"+str(utop)+" 0.0 0.0'\n"
@@ -114,14 +114,14 @@ class FluidModel:
         Lines[88] = "    "+"values = '0.0 "+str(-uleft)+" 0.0'\n"
         Lines[94] = "    "+"values = '0.0 "+str(uright)+" 0.0'\n"
 
-        file1 = open('/home/dhullaks/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/S.i', 'w')
+        file1 = open('/Users/dhulls/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/S.i', 'w')
         file1.writelines(Lines)
         file1.close()
 
-        os.chdir('/home/dhullaks/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady')
-        os.system('/home/dhullaks/projects/moose/modules/navier_stokes/navier_stokes-opt -i S.i')
+        os.chdir('/Users/dhulls/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady')
+        os.system('/Users/dhulls/projects/moose/modules/navier_stokes/navier_stokes-opt -i S.i')
 
-        path1 = '/home/dhullaks/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/S.csv'
+        path1 = '/Users/dhulls/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/S.csv'
         with open(path1) as csvfile:
             readCSV = csv.reader(csvfile, delimiter=',')
             Samp0 = []
@@ -145,7 +145,7 @@ class FluidModel:
         uright = u_Right
         uleft = u_Left
 
-        file1 = open('/home/dhullaks/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/S1.i', 'r')
+        file1 = open('/Users/dhulls/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/S1.i', 'r')
         Lines = file1.readlines()
         Lines[109] = "    "+"prop_values = '"+str(dens)+" "+str(visc)+"'\n"
         Lines[76] = "    "+"values = '"+str(utop)+" 0.0 0.0'\n"
@@ -153,14 +153,14 @@ class FluidModel:
         Lines[88] = "    "+"values = '0.0 "+str(-uleft)+" 0.0'\n"
         Lines[94] = "    "+"values = '0.0 "+str(uright)+" 0.0'\n"
 
-        file1 = open('/home/dhullaks/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/S1.i', 'w')
+        file1 = open('/Users/dhulls/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/S1.i', 'w')
         file1.writelines(Lines)
         file1.close()
 
-        os.chdir('/home/dhullaks/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady')
-        os.system('/home/dhullaks/projects/moose/modules/navier_stokes/navier_stokes-opt -i S1.i')
+        os.chdir('/Users/dhulls/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady')
+        os.system('/Users/dhulls/projects/moose/modules/navier_stokes/navier_stokes-opt -i S1.i')
 
-        path1 = '/home/dhullaks/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/S1.csv'
+        path1 = '/Users/dhulls/projects/moose/modules/navier_stokes/test/tests/ins/2d_steady/S1.csv'
         with open(path1) as csvfile:
             readCSV = csv.reader(csvfile, delimiter=',')
             Samp0 = []

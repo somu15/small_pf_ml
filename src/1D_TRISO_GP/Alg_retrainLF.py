@@ -204,7 +204,7 @@ for kk in np.arange(1,Nlim,1):
         else:
             y_nxt = Norm3(np.array((LS1.Triso_1d(inpp))).reshape(1),1)
             inp_GPtrain = np.concatenate((inp_GPtrain, inpp.reshape(1,Ndim)))
-            inp_LFtrain = np.concatenate((inp_LFtrain, inp.reshape(1,Ndim)))
+            inp_LFtrain = np.concatenate((inp_LFtrain, inpp.reshape(1,Ndim)))
             y_HF_LFtrain = np.concatenate((y_HF_LFtrain, (y_nxt.reshape(1))))
             ML0 = ML_TF(obs_ind = Norm1(inp_LFtrain,P,Ndim), obs = y_HF_LFtrain)
             amp0, len0 = ML0.GP_train(amp_init=1., len_init=1., num_iters = Iters)

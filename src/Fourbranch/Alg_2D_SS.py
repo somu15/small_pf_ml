@@ -31,6 +31,23 @@ value = 0.0
 def Convert(lst):
     return [ -i for i in lst ]
 
+## Monte Carlo
+
+LS1 = LSF()
+DR1 = DR()
+num_s = 500
+uni = uniform()
+Nsub = int(110000)
+y1 = np.zeros(Nsub)
+inp1 = np.zeros((Nsub,2))
+
+for ii in np.arange(0,Nsub,1):
+    inp = DR1.StandardNormal_Indep(N=Ndim)
+    inpp = inp[None,:]
+    print(ii/Nsub)
+    y1[ii] = np.array(Convert(LS1.Scalar_LS1_HF_2D(inpp))).reshape(1)
+    inp1[ii,:] = inp
+
 ## Subset simultion with HF-LF and GP
 LS1 = LSF()
 DR1 = DR()
@@ -83,7 +100,7 @@ amp1, len1 = ML.GP_train(amp_init=1., len_init=1., num_iters = 1000)
 uni = uniform()
 Nsub = 20000
 Psub = 0.1
-Nlim = 2
+Nlim = 3
 y1 = np.zeros((Nsub,Nlim))
 ylf = np.zeros((Nsub,Nlim))
 y1_lim = np.zeros(Nlim)
@@ -165,8 +182,8 @@ for kk in np.arange(1,Nlim,1):
             else:
                 nxt[0,jj] = markov_seed[jj]
             inpp[0,jj] = nxt[0,jj]
-        LF = ML0.GP_predict_mean(amplitude_var = amp0, length_scale_var=len0, pred_ind = inpp).reshape(1)
-        GP_diff = ML.GP_predict_mean(amplitude_var = amp1, length_scale_var=len1, pred_ind = inpp).reshape(1)
+        # LF = ML0.GP_predict_mean(amplitude_var = amp0, length_scale_var=len0, pred_ind = inpp).reshape(1)
+        # GP_diff = ML.GP_predict_mean(amplitude_var = amp1, length_scale_var=len1, pred_ind = inpp).reshape(1)
         if kk<(Nlim-1):
             if ii < Ninit_GP:
                 additive =  y1_lim[kk-1]

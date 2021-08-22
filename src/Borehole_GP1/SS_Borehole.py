@@ -28,6 +28,25 @@ from pyDOE import *
 Ndim = 8
 value = 270.0
 
+## Monte Carlo
+
+LS1 = LSF()
+DR1 = DR()
+num_s = 500
+uni = uniform()
+Nsub = int(17e6)
+y1 = np.zeros(Nsub)
+inp1 = np.zeros((Nsub,8))
+
+for ii in np.arange(0,Nsub,1):
+    inp = DR1.BoreholeRandom().reshape(Ndim)
+    inpp = inp[None,:]
+    print(ii/Nsub)
+    y1[ii] = np.array((LS1.Scalar_Borehole_HF_nD(inpp))).reshape(1)
+    inp1[ii,:] = inp
+
+
+
 def Convert(lst):
     return [ -i for i in lst ]
 
@@ -37,7 +56,7 @@ LS1 = LSF()
 DR1 = DR()
 num_s = 500
 uni = uniform()
-Nsub = 5000
+Nsub = 40000
 Psub = 0.1
 Nlim = 5
 y1 = np.zeros((Nsub,Nlim))
@@ -49,7 +68,7 @@ u_lim_vec = np.array([2,2,2,2,2,2,2,2,2])
 Indicator = np.ones((Nsub,Nlim))
 
 for ii in np.arange(0,Nsub,1):
-    inp = DR1.BoreholeRandom()
+    inp = DR1.BoreholeRandom().reshape(Ndim)
     inpp = inp[None,:]
     print(ii)
     y1[ii,0] = np.array((LS1.Scalar_Borehole_HF_nD(inpp))).reshape(1)
@@ -61,6 +80,7 @@ seeds_outs = np.zeros(int(Psub*Nsub))
 seeds = np.zeros((int(Psub*Nsub),Ndim))
 markov_seed = np.zeros(Ndim)
 markov_out = 0.0
+std_prop = np.zeros(Ndim)
 
 prop_std_req = np.array([0.0216,0.75,11373.07,25.98,11.453,25.98,121.243,474.148])
 
@@ -73,7 +93,14 @@ for kk in np.arange(1,Nlim,1):
     k = (y1[:,kk-1]).argsort()
     indices = k[int((1-Psub)*Nsub):(len(y1))]
     seeds = inp1[indices,:,kk-1]
-    
+    std_prop = np.log((seeds)).std(0)
+    tmp = np.zeros((len(seeds_outs),1+Ndim))
+    tmp[:,0] = seeds_outs
+    tmp[:,1:9] = seeds
+    np.random.shuffle(tmp)
+    seeds_outs = tmp[:,0]
+    seeds = tmp[:,1:9]
+
     for ii in np.arange(0,(Nsub),1):
         nxt = np.zeros((1,Ndim))
 
@@ -90,9 +117,9 @@ for kk in np.arange(1,Nlim,1):
 
         for jj in np.arange(0,Ndim,1):
             if jj == 0:
-                rv1 = norm(loc=np.log(markov_seed[jj]),scale=0.1)
+                rv1 = norm(loc=np.log(markov_seed[jj]),scale=std_prop[jj]) # 0.1
             else:
-                rv1 = norm(loc=np.log(markov_seed[jj]),scale=1.0)
+                rv1 = norm(loc=np.log(markov_seed[jj]),scale=std_prop[jj]) # 1.0
             # rv1 = norm(loc=np.log(inp1[ind_max,jj,kk]),scale=0.5)
             prop = np.exp(rv1.rvs())
             # if jj == 1:

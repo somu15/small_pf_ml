@@ -54,10 +54,10 @@ def InvNorm3(X1,X):
 
 ## Train the LF model
 
-Ninit_GP = 50
+Ninit_GP = 12
 lhd2, lhd = DR1.TrisoLHS(Nsamps=Ninit_GP) #  uniform(loc=-3.5,scale=7.0).ppf(lhd0) #
-inp_LFtrain = lhd
-y_HF_LFtrain = LS1.Triso_1d(inp_LFtrain)
+inp_LFtrain = lhd 
+y_HF_LFtrain = Norm3(LS1.Triso_1d(inp_LFtrain),1)
 # ML0 = ML_TF(obs_ind = Norm1(inp_LFtrain,inp_LFtrain,Ndim), obs = Norm3(y_HF_LFtrain,y_HF_LFtrain))
 ML0 = ML_TF(obs_ind = inp_LFtrain, obs = y_HF_LFtrain) # , amp_init=1., len_init=1., var_init=1., num_iters = 1000)
 DNN_model = ML0.DNN_train(ref_ind=P,dim=Ndim, seed=100, neurons1=10, neurons2=5, learning_rate=0.005, epochs=5000)
@@ -78,9 +78,9 @@ Iters = 2000
 ## Subset simultion with HF-LF and GP
 
 uni = uniform()
-Nsub = 3000
+Nsub = 100
 Psub = 0.1
-Nlim = 4
+Nlim = 2
 y1 = np.zeros((Nsub,Nlim))
 y1_lim = np.zeros(Nlim)
 y1_lim[Nlim-1] = value
@@ -94,10 +94,10 @@ LF_plus_GP = np.empty(1, dtype = float)
 GP_pred = np.empty(1, dtype = float)
 additive = value
 Indicator = np.ones((Nsub,Nlim))
-counter = 1
-file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP_DNN/Results_retrain.csv','w')
-file1.writelines("0,0,0\n")
-file1.close()
+# counter = 1
+# file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP_DNN/Results_retrain.csv','w')
+# file1.writelines("0,0,0\n")
+# file1.close()
 
 for ii in np.arange(0,Nsub,1):
     inp2, inp = DR1.TrisoRandom()
@@ -132,13 +132,13 @@ for ii in np.arange(0,Nsub,1):
         ML = ML_TF(obs_ind = Norm1(inp_GPtrain,P,Ndim), obs = y_GPtrain)
         amp1, len1 = ML.GP_train(amp_init=1., len_init=1., num_iters = Iters)
         subs_info[ii,0] = 1.0
-    file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP_DNN/Results_retrain.csv','r')
-    Lines = file1.readlines()
-    Lines = np.concatenate((Lines,np.array(str(counter)+","+str(y1[ii,0])+","+str(subs_info[ii,0])+"\n").reshape(1)))
-    file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP_DNN/Results_retrain.csv','w')
-    file1.writelines(Lines)
-    file1.close()
-    counter = counter + 1
+    # file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP_DNN/Results_retrain.csv','r')
+    # Lines = file1.readlines()
+    # Lines = np.concatenate((Lines,np.array(str(counter)+","+str(y1[ii,0])+","+str(subs_info[ii,0])+"\n").reshape(1)))
+    # file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP_DNN/Results_retrain.csv','w')
+    # file1.writelines(Lines)
+    # file1.close()
+    # counter = counter + 1
 
 LF_plus_GP = np.delete(LF_plus_GP, 0)
 GP_pred = np.delete(GP_pred, 0)
@@ -177,7 +177,7 @@ for kk in np.arange(1,Nlim,1):
         count = count + 1
 
         for jj in np.arange(0,Ndim,1):
-            rv1 = norm(loc=np.log(markov_seed[jj]),scale=0.3) # prop_std[jj]
+            rv1 = norm(loc=np.log(markov_seed[jj]),scale=0.45) # prop_std[jj]
             prop = np.exp(rv1.rvs())
             r = np.log(DR1.TrisoPDF(rv_req=prop, index=jj)) - np.log(DR1.TrisoPDF(rv_req=(markov_seed[jj]),index=jj)) # np.log(rv.pdf((prop)))-np.log(rv.pdf((inp1[ind_max,jj,kk])))
             if r>np.log(uni.rvs()):
@@ -202,7 +202,7 @@ for kk in np.arange(1,Nlim,1):
         else:
             y_nxt = Norm3(np.array((LS1.Triso_1d(inpp))).reshape(1),1)
             inp_GPtrain = np.concatenate((inp_GPtrain, inpp.reshape(1,Ndim)))
-            inp_LFtrain = np.concatenate((inp_LFtrain, inp.reshape(1,Ndim)))
+            inp_LFtrain = np.concatenate((inp_LFtrain, inpp.reshape(1,Ndim)))
             y_HF_LFtrain = np.concatenate((y_HF_LFtrain, (y_nxt.reshape(1))))
             ML0 = ML_TF(obs_ind = inp_LFtrain, obs = y_HF_LFtrain) # , amp_init=1., len_init=1., var_init=1., num_iters = 1000)
             DNN_model = ML0.DNN_train(ref_ind=P,dim=Ndim, seed=100, neurons1=10, neurons2=5, learning_rate=0.005, epochs=5000)
@@ -222,14 +222,14 @@ for kk in np.arange(1,Nlim,1):
             inp1[ii,:,kk] = markov_seed
             y1[ii,kk] = markov_out
             Indicator[ii,kk] = 0.0
-        file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP_DNN/Results_retrain.csv','r')
-        # file1 = open('/home/dhullaks/projects/bison/examples/TRISO/2D_Alg/2d_MC.i', 'r')
-        Lines = file1.readlines()
-        Lines = np.concatenate((Lines,np.array(str(counter)+","+str(y1[ii,kk])+","+str(subs_info[ii,kk])+"\n").reshape(1)))
-        file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP_DNN/Results_retrain.csv','w')
-        file1.writelines(Lines)
-        file1.close()
-        counter = counter + 1
+        # file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP_DNN/Results_retrain.csv','r')
+        # # file1 = open('/home/dhullaks/projects/bison/examples/TRISO/2D_Alg/2d_MC.i', 'r')
+        # Lines = file1.readlines()
+        # Lines = np.concatenate((Lines,np.array(str(counter)+","+str(y1[ii,kk])+","+str(subs_info[ii,kk])+"\n").reshape(1)))
+        # file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP_DNN/Results_retrain.csv','w')
+        # file1.writelines(Lines)
+        # file1.close()
+        # counter = counter + 1
 
 
 Pf = 1
@@ -242,20 +242,20 @@ for kk in np.arange(0,Nlim,1):
     cov_sq = cov_sq + ((1-Pi)/(Pi*Nsub))
 cov_req = np.sqrt(cov_sq)
 
-filename = 'Alg_Run_retrain.pickle'
-os.chdir('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP_DNN')
-with open(filename, 'wb') as f:
-    pickle.dump(y1, f)
-    pickle.dump(y1_lim, f)
-    pickle.dump(Pf, f)
-    pickle.dump(cov_req, f)
-    pickle.dump(Nlim, f)
-    pickle.dump(Nsub, f)
-    pickle.dump(Pi_sto, f)
-    pickle.dump(u_GP, f)
-    pickle.dump(subs_info, f)
-    pickle.dump(y_GPtrain, f)
-    pickle.dump(y_HF_GP, f)
-    pickle.dump(y_LF_GP, f)
-    pickle.dump(inp_GPtrain, f)
-    pickle.dump(Indicator, f)
+# filename = 'Alg_Run_retrain.pickle'
+# os.chdir('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP_DNN')
+# with open(filename, 'wb') as f:
+#     pickle.dump(y1, f)
+#     pickle.dump(y1_lim, f)
+#     pickle.dump(Pf, f)
+#     pickle.dump(cov_req, f)
+#     pickle.dump(Nlim, f)
+#     pickle.dump(Nsub, f)
+#     pickle.dump(Pi_sto, f)
+#     pickle.dump(u_GP, f)
+#     pickle.dump(subs_info, f)
+#     pickle.dump(y_GPtrain, f)
+#     pickle.dump(y_HF_GP, f)
+#     pickle.dump(y_LF_GP, f)
+#     pickle.dump(inp_GPtrain, f)
+#     pickle.dump(Indicator, f)

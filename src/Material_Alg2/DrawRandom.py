@@ -153,28 +153,28 @@ class DrawRandom:
         out[:,9] = uniform(loc=23750,scale=52500).ppf(lhd0[:,9])
         return out
 
-    def MaterialRandom(self):
-        out = np.zeros(8)
+    def MaterialRandom(self,N=1):
+        out = np.zeros((N,8))
         rv1 = norm(loc=np.log(200),scale=0.1) # Ex
         rv2 = norm(loc=np.log(300),scale=0.1) # Ez
         rv3 = norm(loc=np.log(0.25),scale=0.1) # vxy
         rv4 = norm(loc=np.log(0.3),scale=0.1) # vxz
         rv5 = norm(loc=np.log(135),scale=0.1) # Gxz
         rv6 = norm(loc=np.log(0.15),scale=0.5) # ux, uy, uz
-        out[0] = np.exp(rv1.rvs())
-        out[1] = np.exp(rv2.rvs())
-        out[2] = np.exp(rv3.rvs())
-        out[3] = np.exp(rv4.rvs())
-        out[4] = np.exp(rv5.rvs())
-        out[5] = np.exp(rv6.rvs())
-        out[6] = np.exp(rv6.rvs())
-        out[7] = np.exp(rv6.rvs())
-        out1 = np.zeros(5)
-        out1[0] = out[0]
-        out1[1] = out[2]
-        out1[2] = out[5]
-        out1[3] = out[6]
-        out1[4] = out[7]
+        out[:,0] = np.exp(rv1.rvs(size=N))
+        out[:,1] = np.exp(rv2.rvs(size=N))
+        out[:,2] = np.exp(rv3.rvs(size=N))
+        out[:,3] = np.exp(rv4.rvs(size=N))
+        out[:,4] = np.exp(rv5.rvs(size=N))
+        out[:,5] = np.exp(rv6.rvs(size=N))
+        out[:,6] = np.exp(rv6.rvs(size=N))
+        out[:,7] = np.exp(rv6.rvs(size=N))
+        out1 = np.zeros((N,5))
+        out1[:,0] = out[:,0]
+        out1[:,1] = out[:,2]
+        out1[:,2] = out[:,5]
+        out1[:,3] = out[:,6]
+        out1[:,4] = out[:,7]
         return out, out1
 
     def MaterialLHS(self, Nsamps=None):
@@ -233,8 +233,8 @@ class DrawRandom:
 
         return out
 
-    def FluidRandom(self):
-        out = np.zeros(6)
+    def FluidRandom(self,N=1):
+        out = np.zeros((N,6))
         lower, upper = np.log(0.005), np.log(0.05)
         mu, sigma = np.log(0.025), 0.5
         rv0 = truncnorm((lower - mu) / sigma, (upper - mu) / sigma, loc=mu, scale=sigma) # Viscosity
@@ -242,12 +242,12 @@ class DrawRandom:
         lower, upper = np.log(0.5), np.log(1.5)
         mu, sigma = np.log(0.75), 0.25
         rv2 = truncnorm((lower - mu) / sigma, (upper - mu) / sigma, loc=mu, scale=sigma) # Velocity
-        out[0] = np.exp(rv0.rvs())
-        out[1] = (rv1.rvs())
-        out[2] = -np.exp(rv2.rvs()) # u_Bottom
-        out[3] = np.exp(rv2.rvs()) # u_Top
-        out[4] = -np.exp(rv2.rvs()) # u_Left
-        out[5] = np.exp(rv2.rvs()) # u_Right
+        out[:,0] = np.exp(rv0.rvs())
+        out[:,1] = (rv1.rvs())
+        out[:,2] = -np.exp(rv2.rvs()) # u_Bottom
+        out[:,3] = np.exp(rv2.rvs()) # u_Top
+        out[:,4] = -np.exp(rv2.rvs()) # u_Left
+        out[:,5] = np.exp(rv2.rvs()) # u_Right
         return out
 
     def FluidLHS(self, Nsamps=None):

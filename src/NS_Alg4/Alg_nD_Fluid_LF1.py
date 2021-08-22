@@ -9,6 +9,7 @@ Created on Wed Jan  6 10:09:55 2021
 
 from os import sys
 import os
+os.chdir('/Users/dhulls/projects/Small Pf/Small_Pf_code/src/NS_Alg4')
 import pathlib
 import numpy as np
 import random
@@ -30,6 +31,7 @@ from LimitStateFunctions import LimitStateFunctions as LSF
 from ML_TF import ML_TF
 from DrawRandom import DrawRandom as DR
 from pyDOE import *
+
 
 Ndim = 6
 value = 0.85 # 600.0
@@ -92,10 +94,10 @@ LF_plus_GP = np.empty(1, dtype = float)
 GP_pred = np.empty(1, dtype = float)
 additive = value
 Indicator = np.ones((Nsub,Nlim))
-counter = 1
-file1 = open('/home/dhullaks/projects/Small_Pf_code/src/NS_Alg4/Results.csv','w')
-file1.writelines("0,0,0\n")
-file1.close()
+# counter = 1
+# file1 = open('/home/dhullaks/projects/Small_Pf_code/src/NS_Alg4/Results.csv','w')
+# file1.writelines("0,0,0\n")
+# file1.close()
 
 for ii in np.arange(0,Nsub,1):
     inp = DR1.FluidRandom()
@@ -135,15 +137,15 @@ for ii in np.arange(0,Nsub,1):
         ML = ML_TF(obs_ind = Norm1(inp_GPtrain,inp_GPtrain,Ndim), obs = Norm3(y_GPtrain,y_GPtrain))
         amp1, len1 = ML.GP_train(amp_init=amp1, len_init=len1, num_iters = Iters)
         subs_info[ii,0] = 1.0
-    file1 = open('/home/dhullaks/projects/Small_Pf_code/src/NS_Alg4/Results.csv','r')
-    Lines = file1.readlines()
-    Lines = np.concatenate((Lines,np.array(str(counter)+","+str(y1[ii,0])+","+str(subs_info[ii,0])+"\n").reshape(1)))
-    file1 = open('/home/dhullaks/projects/Small_Pf_code/src/NS_Alg4/Results.csv','w')
-    file1.writelines(Lines)
-    file1.close()
-    counter = counter + 1
+    # file1 = open('/home/dhullaks/projects/Small_Pf_code/src/NS_Alg4/Results.csv','r')
+    # Lines = file1.readlines()
+    # Lines = np.concatenate((Lines,np.array(str(counter)+","+str(y1[ii,0])+","+str(subs_info[ii,0])+"\n").reshape(1)))
+    # file1 = open('/home/dhullaks/projects/Small_Pf_code/src/NS_Alg4/Results.csv','w')
+    # file1.writelines(Lines)
+    # file1.close()
+    # counter = counter + 1
 
-std_GPdiff = np.delete(std_GPdiff, 0)
+# std_GPdiff = np.delete(std_GPdiff, 0)
 LF_plus_GP = np.delete(LF_plus_GP, 0)
 GP_pred = np.delete(GP_pred, 0)
 
@@ -183,7 +185,7 @@ for kk in np.arange(1,Nlim,1):
         count = count + 1
 
         for jj in np.arange(0,Ndim,1):
-            rv1 = norm(loc=np.log(markov_seed[jj]),scale=0.75)
+            rv1 = norm(loc=np.log(markov_seed[jj]),scale=0.5)
             prop = np.exp(rv1.rvs())
             # if jj == 1:
             #    rv1 = uniform(loc=((inp1[ind_max,jj,kk])-prop_std_req[jj]),scale=(2*prop_std_req[jj]))
@@ -231,12 +233,12 @@ for kk in np.arange(1,Nlim,1):
             inp1[ii,:,kk] = markov_seed
             y1[ii,kk] = markov_out
             Indicator[ii,kk] = 0.0
-        file1 = open('/home/dhullaks/projects/Small_Pf_code/src/NS_Alg4/Results.csv','r')
-        Lines = file1.readlines()
-        Lines = np.concatenate((Lines,np.array(str(counter)+","+str(y1[ii,0])+","+str(subs_info[ii,0])+"\n").reshape(1)))
-        file1 = open('/home/dhullaks/projects/Small_Pf_code/src/NS_Alg4/Results.csv','w')
-        file1.writelines(Lines)
-        file1.close()
+        # file1 = open('/home/dhullaks/projects/Small_Pf_code/src/NS_Alg4/Results.csv','r')
+        # Lines = file1.readlines()
+        # Lines = np.concatenate((Lines,np.array(str(counter)+","+str(y1[ii,0])+","+str(subs_info[ii,0])+"\n").reshape(1)))
+        # file1 = open('/home/dhullaks/projects/Small_Pf_code/src/NS_Alg4/Results.csv','w')
+        # file1.writelines(Lines)
+        # file1.close()
 
 # for kk in np.arange(1,Nlim,1):
 #     count = np.inf
@@ -316,19 +318,19 @@ for kk in np.arange(0,Nlim,1):
     cov_sq = cov_sq + ((1-Pi)/(Pi*Nsub))
 cov_req = np.sqrt(cov_sq)
 
-filename = 'Alg_Run4_GP.pickle'
-os.chdir('/home/dhullaks/projects/Small_Pf_code/src/NS_Alg4')
-with open(filename, 'wb') as f:
-    pickle.dump(y1, f)
-    pickle.dump(y1_lim, f)
-    pickle.dump(Pf, f)
-    pickle.dump(cov_req, f)
-    pickle.dump(Nlim, f)
-    pickle.dump(Nsub, f)
-    pickle.dump(Pi_sto, f)
-    pickle.dump(u_GP, f)
-    pickle.dump(subs_info, f)
-    pickle.dump(y_GPtrain, f)
-    pickle.dump(y_HF_GP, f)
-    pickle.dump(y_LF_GP, f)
-    pickle.dump(Indicator, f)
+# filename = 'Alg_Run4_GP.pickle'
+# os.chdir('/home/dhullaks/projects/Small_Pf_code/src/NS_Alg4')
+# with open(filename, 'wb') as f:
+#     pickle.dump(y1, f)
+#     pickle.dump(y1_lim, f)
+#     pickle.dump(Pf, f)
+#     pickle.dump(cov_req, f)
+#     pickle.dump(Nlim, f)
+#     pickle.dump(Nsub, f)
+#     pickle.dump(Pi_sto, f)
+#     pickle.dump(u_GP, f)
+#     pickle.dump(subs_info, f)
+#     pickle.dump(y_GPtrain, f)
+#     pickle.dump(y_HF_GP, f)
+#     pickle.dump(y_LF_GP, f)
+#     pickle.dump(Indicator, f)

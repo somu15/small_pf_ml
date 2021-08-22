@@ -78,7 +78,7 @@ amp1, len1 = ML.GP_train(amp_init=1., len_init=1., num_iters = 1000)
 uni = uniform()
 Nsub = 2000
 Psub = 0.1
-Nlim = 5
+Nlim = 3
 y1 = np.zeros((Nsub,Nlim))
 y1_lim = np.zeros(Nlim)
 y1_lim[Nlim-1] = value

@@ -153,28 +153,28 @@ class DrawRandom:
         out[:,9] = uniform(loc=23750,scale=52500).ppf(lhd0[:,9])
         return out
 
-    def MaterialRandom(self):
-        out = np.zeros(8)
+    def MaterialRandom(self,N=1):
+        out = np.zeros((N,8))
         rv1 = norm(loc=np.log(200),scale=0.1) # Ex
         rv2 = norm(loc=np.log(300),scale=0.1) # Ez
         rv3 = norm(loc=np.log(0.25),scale=0.1) # vxy
         rv4 = norm(loc=np.log(0.3),scale=0.1) # vxz
         rv5 = norm(loc=np.log(135),scale=0.1) # Gxz
         rv6 = norm(loc=np.log(0.15),scale=0.5) # ux, uy, uz
-        out[0] = np.exp(rv1.rvs())
-        out[1] = np.exp(rv2.rvs())
-        out[2] = np.exp(rv3.rvs())
-        out[3] = np.exp(rv4.rvs())
-        out[4] = np.exp(rv5.rvs())
-        out[5] = np.exp(rv6.rvs())
-        out[6] = np.exp(rv6.rvs())
-        out[7] = np.exp(rv6.rvs())
-        out1 = np.zeros(5)
-        out1[0] = out[0]
-        out1[1] = out[2]
-        out1[2] = out[5]
-        out1[3] = out[6]
-        out1[4] = out[7]
+        out[:,0] = np.exp(rv1.rvs(size=N))
+        out[:,1] = np.exp(rv2.rvs(size=N))
+        out[:,2] = np.exp(rv3.rvs(size=N))
+        out[:,3] = np.exp(rv4.rvs(size=N))
+        out[:,4] = np.exp(rv5.rvs(size=N))
+        out[:,5] = np.exp(rv6.rvs(size=N))
+        out[:,6] = np.exp(rv6.rvs(size=N))
+        out[:,7] = np.exp(rv6.rvs(size=N))
+        out1 = np.zeros((N,5))
+        out1[:,0] = out[:,0]
+        out1[:,1] = out[:,2]
+        out1[:,2] = out[:,5]
+        out1[:,3] = out[:,6]
+        out1[:,4] = out[:,7]
         return out, out1
 
     def MaterialLHS(self, Nsamps=None):

@@ -275,6 +275,20 @@ for kk in np.arange(1,Nlim,1):
         file1.close()
         counter = counter + 1
 
+
+ydiff = np.zeros((Nsub,Nlim))
+y2 = np.zeros((Nsub,Nlim))
+for ii in np.arange(0,Nlim):
+    samples1 = ML.GP_predict(amplitude_var = amp1, length_scale_var=len1, pred_ind = Norm1(inp1[:,:,ii].reshape(Nsub,Ndim),P,Ndim), num_samples=num_s)
+    ydiff[:,ii] = InvNorm3(np.mean(np.array(samples1),axis=0),y_GPtrain)
+    indreq = (np.where(subs_info[:,ii]==1))
+    y2[indreq,ii] = y1[indreq,ii]
+    indreq = (np.where(subs_info[:,ii]==0))
+    y2[indreq,ii] = ydiff[indreq,ii]+ylf[indreq,ii]
+seeds_outs = np.sort(y1[:,kk-1])[int((1-Psub)*Nsub):(len(y1))]
+y1_lim[kk-1] = np.min(seeds_outs)
+
+
 Pf = 1
 Pi_sto = np.zeros(Nlim)
 cov_sq = 0
@@ -285,18 +299,18 @@ for kk in np.arange(0,Nlim,1):
     cov_sq = cov_sq + ((1-Pi)/(Pi*Nsub))
 cov_req = np.sqrt(cov_sq)
 
-filename = 'Alg_Run1_GP.pickle'
-with open(filename, 'wb') as f:
-    pickle.dump(y1, f)
-    pickle.dump(y1_lim, f)
-    pickle.dump(Pf, f)
-    pickle.dump(cov_req, f)
-    pickle.dump(Nlim, f)
-    pickle.dump(Nsub, f)
-    pickle.dump(Pi_sto, f)
-    pickle.dump(u_GP, f)
-    pickle.dump(y_GPtrain, f)
-    pickle.dump(y_HF_GP, f)
-    pickle.dump(y_LF_GP, f)
-    pickle.dump(subs_info, f)
-    pickle.dump(Indicator, f)
+# filename = 'Alg_Run1_GP.pickle'
+# with open(filename, 'wb') as f:
+#     pickle.dump(y1, f)
+#     pickle.dump(y1_lim, f)
+#     pickle.dump(Pf, f)
+#     pickle.dump(cov_req, f)
+#     pickle.dump(Nlim, f)
+#     pickle.dump(Nsub, f)
+#     pickle.dump(Pi_sto, f)
+#     pickle.dump(u_GP, f)
+#     pickle.dump(y_GPtrain, f)
+#     pickle.dump(y_HF_GP, f)
+#     pickle.dump(y_LF_GP, f)
+#     pickle.dump(subs_info, f)
+#     pickle.dump(Indicator, f)

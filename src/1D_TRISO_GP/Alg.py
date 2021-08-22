@@ -56,19 +56,20 @@ def Norm1(X1,X,dim):
 
 
 def Norm3(X1,X):
-    return ((X1)-np.mean((X)))/(np.std((X)))
-    # return X1
+    # return ((X1)-np.mean((X)))/(np.std((X)))
+    return (X1/1.2e9)
 
 def InvNorm3(X1,X):
-    return (X1*np.std((X))+np.mean((X)))
+    # return (X1*np.std((X))+np.mean((X)))
+    return X1
 
 ## Train the LF model
 
 Ninit_GP = 12
 lhd2, lhd = DR1.TrisoLHS(Nsamps=Ninit_GP) #  uniform(loc=-3.5,scale=7.0).ppf(lhd0) #
 inp_LFtrain = lhd
-y_HF_LFtrain = LS1.Triso_1d(inp_LFtrain)
-ML0 = ML_TF(obs_ind = Norm1(inp_LFtrain,inp_LFtrain,Ndim), obs = Norm3(y_HF_LFtrain,y_HF_LFtrain))
+y_HF_LFtrain = Norm3(LS1.Triso_1d(inp_LFtrain),1)
+ML0 = ML_TF(obs_ind = Norm1(inp_LFtrain,inp_LFtrain,Ndim), obs = y_HF_LFtrain)
 amp0, len0 = ML0.GP_train(amp_init=1.0, len_init=1.0, num_iters = 1000)
 
 ## Train the GP diff model
@@ -78,16 +79,16 @@ lhd0, lhd = DR1.TrisoLHS(Nsamps=Ninit_GP)
 inp_GPtrain = lhd
 samples0 = ML0.GP_predict(amplitude_var = amp0, length_scale_var=len0, pred_ind = Norm1(inp_GPtrain,inp_LFtrain,Ndim), num_samples=num_s)
 y_LF_GP = np.array(InvNorm3(np.mean(np.array(samples0),axis=0),y_HF_LFtrain))
-y_HF_GP = np.array((LS1.Triso_1d(inp_GPtrain)))
+y_HF_GP = Norm3(np.array((LS1.Triso_1d(inp_GPtrain))),1)
 y_GPtrain = y_HF_GP - y_LF_GP
-ML = ML_TF(obs_ind = Norm1(inp_GPtrain,inp_GPtrain,Ndim), obs = Norm3(y_GPtrain,y_GPtrain))
+ML = ML_TF(obs_ind = Norm1(inp_GPtrain,inp_GPtrain,Ndim), obs = y_GPtrain)
 amp1, len1 = ML.GP_train(amp_init=1., len_init=1., num_iters = 1000)
 Iters = 600
 
 ## Subset simultion with HF-LF and GP
 
 uni = uniform()
-Nsub = 2000
+Nsub = 500
 Psub = 0.1
 Nlim = 4
 y1 = np.zeros((Nsub,Nlim))
@@ -103,10 +104,10 @@ LF_plus_GP = np.empty(1, dtype = float)
 GP_pred = np.empty(1, dtype = float)
 additive = value
 Indicator = np.ones((Nsub,Nlim))
-counter = 1
-file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP/Results.csv','w')
-file1.writelines("0,0,0")
-file1.close()
+# counter = 1
+# file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP/Results.csv','w')
+# file1.writelines("0,0,0")
+# file1.close()
 
 for ii in np.arange(0,Nsub,1):
     inp2, inp = DR1.TrisoRandom()
@@ -124,26 +125,27 @@ for ii in np.arange(0,Nsub,1):
 
     u_lim = u_lim_vec[0]
     print(ii)
+    print(LF + GP_diff)
     if u_check > u_lim:
         y1[ii,0] = LF + GP_diff
     else:
-        y1[ii,0] = np.array((LS1.Triso_1d(inpp))).reshape(1)
+        y1[ii,0] = Norm3(np.array((LS1.Triso_1d(inpp))).reshape(1),1)
         inp_GPtrain = np.concatenate((inp_GPtrain, inp.reshape(1,Ndim)))
         y_LF_GP = np.concatenate((y_LF_GP, np.array(LF).reshape(1)))
         y_HF_GP = np.concatenate((y_HF_GP, y1[ii,0].reshape(1)))
         y_GPtrain = np.concatenate((y_GPtrain, (y1[ii,0].reshape(1)-LF)))
         LF_plus_GP = np.concatenate((LF_plus_GP, (LF + np.array(GP_diff).reshape(1))))
         GP_pred = np.concatenate((GP_pred, (np.array(GP_diff).reshape(1))))
-        ML = ML_TF(obs_ind = Norm1(inp_GPtrain,inp_GPtrain,Ndim), obs = Norm3(y_GPtrain,y_GPtrain))
+        ML = ML_TF(obs_ind = Norm1(inp_GPtrain,inp_GPtrain,Ndim), obs = y_GPtrain)
         amp1, len1 = ML.GP_train(amp_init=amp1, len_init=len1, num_iters = Iters)
         subs_info[ii,0] = 1.0
-    file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP/Results.csv','r')
-    Lines = file1.readlines()
-    Lines = np.concatenate((Lines,np.array(str(counter)+","+str(y1[ii,0])+","+str(subs_info[ii,0])+"\n").reshape(1)))
-    file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP/Results.csv','w')
-    file1.writelines(Lines)
-    file1.close()
-    counter = counter + 1
+    # file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP/Results.csv','r')
+    # Lines = file1.readlines()
+    # Lines = np.concatenate((Lines,np.array(str(counter)+","+str(y1[ii,0])+","+str(subs_info[ii,0])+"\n").reshape(1)))
+    # file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP/Results.csv','w')
+    # file1.writelines(Lines)
+    # file1.close()
+    # counter = counter + 1
 
 LF_plus_GP = np.delete(LF_plus_GP, 0)
 GP_pred = np.delete(GP_pred, 0)
@@ -183,7 +185,7 @@ for kk in np.arange(1,Nlim,1):
         count = count + 1
 
         for jj in np.arange(0,Ndim,1):
-            rv1 = norm(loc=np.log(markov_seed[jj]),scale=0.5) # prop_std[jj]
+            rv1 = norm(loc=np.log(markov_seed[jj]),scale=prop_std[jj]) #
             prop = np.exp(rv1.rvs())
             r = np.log(DR1.TrisoPDF(rv_req=prop, index=jj)) - np.log(DR1.TrisoPDF(rv_req=(markov_seed[jj]),index=jj)) # np.log(rv.pdf((prop)))-np.log(rv.pdf((inp1[ind_max,jj,kk])))
             if r>np.log(uni.rvs()):
@@ -203,17 +205,18 @@ for kk in np.arange(1,Nlim,1):
 
         print(ii)
         print(kk)
+        print(LF + GP_diff)
         if u_check > u_lim:
             y_nxt = LF + GP_diff
         else:
-            y_nxt = np.array((LS1.Triso_1d(inpp))).reshape(1)
+            y_nxt = Norm3(np.array((LS1.Triso_1d(inpp))).reshape(1),1)
             inp_GPtrain = np.concatenate((inp_GPtrain, inpp.reshape(1,Ndim)))
             y_LF_GP = np.concatenate((y_LF_GP, np.array(LF).reshape(1)))
             y_HF_GP = np.concatenate((y_HF_GP, y_nxt.reshape(1)))
             y_GPtrain = np.concatenate((y_GPtrain, (y_nxt.reshape(1)-LF)))
             LF_plus_GP = np.concatenate((LF_plus_GP, (LF + np.array(GP_diff).reshape(1))))
             GP_pred = np.concatenate((GP_pred, (np.array(GP_diff).reshape(1))))
-            ML = ML_TF(obs_ind = Norm1(inp_GPtrain,inp_GPtrain,Ndim), obs = Norm3(y_GPtrain,y_GPtrain))
+            ML = ML_TF(obs_ind = Norm1(inp_GPtrain,inp_GPtrain,Ndim), obs = y_GPtrain)
             amp1, len1 = ML.GP_train(amp_init=amp1, len_init=len1, num_iters = Iters)
             subs_info[ii,kk] = 1.0
 
@@ -224,14 +227,14 @@ for kk in np.arange(1,Nlim,1):
             inp1[ii,:,kk] = markov_seed
             y1[ii,kk] = markov_out
             Indicator[ii,kk] = 0.0
-        file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP/Results.csv','r')
-        # file1 = open('/home/dhullaks/projects/bison/examples/TRISO/2D_Alg/2d_MC.i', 'r')
-        Lines = file1.readlines()
-        Lines = np.concatenate((Lines,np.array(str(counter)+","+str(y1[ii,kk])+","+str(subs_info[ii,kk])+"\n").reshape(1)))
-        file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP/Results.csv','w')
-        file1.writelines(Lines)
-        file1.close()
-        counter = counter + 1
+        # file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP/Results.csv','r')
+        # # file1 = open('/home/dhullaks/projects/bison/examples/TRISO/2D_Alg/2d_MC.i', 'r')
+        # Lines = file1.readlines()
+        # Lines = np.concatenate((Lines,np.array(str(counter)+","+str(y1[ii,kk])+","+str(subs_info[ii,kk])+"\n").reshape(1)))
+        # file1 = open('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP/Results.csv','w')
+        # file1.writelines(Lines)
+        # file1.close()
+        # counter = counter + 1
 
 
 
@@ -245,22 +248,22 @@ for kk in np.arange(0,Nlim,1):
     cov_sq = cov_sq + ((1-Pi)/(Pi*Nsub))
 cov_req = np.sqrt(cov_sq)
 
-filename = 'Alg_Run_1d.pickle'
-os.chdir('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP')
-with open(filename, 'wb') as f:
-    pickle.dump(y1, f)
-    pickle.dump(y1_lim, f)
-    pickle.dump(Pf, f)
-    pickle.dump(cov_req, f)
-    pickle.dump(Nlim, f)
-    pickle.dump(Nsub, f)
-    pickle.dump(Pi_sto, f)
-    pickle.dump(u_GP, f)
-    pickle.dump(subs_info, f)
-    pickle.dump(y_GPtrain, f)
-    pickle.dump(y_HF_GP, f)
-    pickle.dump(y_LF_GP, f)
-    pickle.dump(Indicator, f)
+# filename = 'Alg_Run_1d.pickle'
+# os.chdir('/home/dhullaks/projects/Small_Pf_code/src/1D_TRISO_GP')
+# with open(filename, 'wb') as f:
+#     pickle.dump(y1, f)
+#     pickle.dump(y1_lim, f)
+#     pickle.dump(Pf, f)
+#     pickle.dump(cov_req, f)
+#     pickle.dump(Nlim, f)
+#     pickle.dump(Nsub, f)
+#     pickle.dump(Pi_sto, f)
+#     pickle.dump(u_GP, f)
+#     pickle.dump(subs_info, f)
+#     pickle.dump(y_GPtrain, f)
+#     pickle.dump(y_HF_GP, f)
+#     pickle.dump(y_LF_GP, f)
+#     pickle.dump(Indicator, f)
 
 # # req = 2.425e-04 (1000 sims per subset and 4 subsets; Num HF = 86; value=800)
 

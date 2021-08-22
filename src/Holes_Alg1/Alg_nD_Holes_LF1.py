@@ -31,7 +31,7 @@ from DrawRandom import DrawRandom as DR
 from pyDOE import *
 
 Ndim = 3
-value = 100.0 # 600.0
+value = 400.0 # 600.0
 
 LS1 = LSF()
 DR1 = DR()
@@ -61,7 +61,7 @@ def InvNorm3(X1,X):
 
 ## Train the GP diff model
 
-Iters = 300
+Iters = 500
 Ninit_GP = 12
 lhd = DR1.HolesLHS(Nsamps=Ninit_GP)
 y_LF_GP = np.empty(1, dtype = float)
@@ -76,9 +76,9 @@ amp1, len1 = ML.GP_train(amp_init=1., len_init=1., num_iters = 1000)
 ## Subset simultion with HF-LF and GP
 
 uni = uniform()
-Nsub = 2000
+Nsub = 10000
 Psub = 0.1
-Nlim = 5
+Nlim = 3
 y1 = np.zeros((Nsub,Nlim))
 y1_lim = np.zeros(Nlim)
 y1_lim[Nlim-1] = value
@@ -144,6 +144,8 @@ seeds_outs = np.zeros(int(Psub*Nsub))
 seeds = np.zeros((int(Psub*Nsub),Ndim))
 markov_seed = np.zeros(Ndim)
 markov_out = 0.0
+u_req = np.zeros(Nsub)
+u_check1 = 10.0
 
 prop_std_req =np.array([0.375,0.375,0.375])
 
@@ -174,7 +176,7 @@ for kk in np.arange(1,Nlim,1):
         count = count + 1
 
         for jj in np.arange(0,Ndim,1):
-            rv1 = norm(loc=np.log(markov_seed[jj]),scale=0.75)
+            rv1 = norm(loc=np.log(markov_seed[jj]),scale=0.7)
             prop = np.exp(rv1.rvs())
             # rv1 = uniform(loc=(np.log(inp1[ind_max,jj,kk])-prop_std_req[jj]),scale=(2*prop_std_req[jj]))
             # prop = np.exp(rv1.rvs())
@@ -195,9 +197,12 @@ for kk in np.arange(1,Nlim,1):
         additive = y1_lim[kk-1]
         u_check = (np.abs(LF + GP_diff - additive))/np.std(InvNorm3(np.array(samples1),y_GPtrain),axis=0)
 
-        u_GP[ii,kk] = u_check
-        u_lim = u_lim_vec[kk]
-        if u_check > u_lim:
+        if kk == (Nlim-1):
+            additive = value
+            u_check1 = (np.abs(LF + GP_diff-additive))/np.std(InvNorm3(np.array(samples1),y_GPtrain),axis=0)
+            u_req[ii] = u_check1
+
+        if u_check > u_lim and u_check1 >= u_lim:
             y_nxt = LF + GP_diff
         else:
             y_nxt = np.array((LS1.Holes_HF1(inpp))).reshape(1)
@@ -228,20 +233,20 @@ for kk in np.arange(0,Nlim,1):
     Pi_sto[kk] = Pi
     cov_sq = cov_sq + ((1-Pi)/(Pi*Nsub))
 cov_req = np.sqrt(cov_sq)
-
-filename = 'Alg_Run1.pickle'
-os.chdir('/home/dhullaks/projects/Small_Pf_code/src/Holes_Alg1')
-with open(filename, 'wb') as f:
-    pickle.dump(y1, f)
-    pickle.dump(y1_lim, f)
-    pickle.dump(Pf, f)
-    pickle.dump(cov_req, f)
-    pickle.dump(Nlim, f)
-    pickle.dump(Nsub, f)
-    pickle.dump(Pi_sto, f)
-    pickle.dump(u_GP, f)
-    pickle.dump(subs_info, f)
-    pickle.dump(y_GPtrain, f)
-    pickle.dump(y_HF_GP, f)
-    pickle.dump(y_LF_GP, f)
-    pickle.dump(Indicator, f)
+#
+# filename = 'Alg_Run1.pickle'
+# os.chdir('/home/dhullaks/projects/Small_Pf_code/src/Holes_Alg1')
+# with open(filename, 'wb') as f:
+#     pickle.dump(y1, f)
+#     pickle.dump(y1_lim, f)
+#     pickle.dump(Pf, f)
+#     pickle.dump(cov_req, f)
+#     pickle.dump(Nlim, f)
+#     pickle.dump(Nsub, f)
+#     pickle.dump(Pi_sto, f)
+#     pickle.dump(u_GP, f)
+#     pickle.dump(subs_info, f)
+#     pickle.dump(y_GPtrain, f)
+#     pickle.dump(y_HF_GP, f)
+#     pickle.dump(y_LF_GP, f)
+#     pickle.dump(Indicator, f)

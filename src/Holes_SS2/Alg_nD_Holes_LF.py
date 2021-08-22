@@ -18,7 +18,7 @@ from scipy.stats import uniform
 from scipy.stats import cauchy
 import matplotlib.pyplot as plt
 import pickle
-
+os.chdir('/Users/dhulls/projects/Small Pf/Small_Pf_code/src/Holes_SS2')
 import tensorflow.compat.v2 as tf
 import tensorflow_probability as tfp
 tfb = tfp.bijectors
@@ -31,7 +31,7 @@ from DrawRandom import DrawRandom as DR
 from pyDOE import *
 
 Ndim = 3
-value = 100.0 # 600.0
+value = 400.0 # 600.0
 
 LS1 = LSF()
 DR1 = DR()
@@ -39,9 +39,9 @@ num_s = 500
 
 
 uni = uniform()
-Nsub = 2000
+Nsub = 10000
 Psub = 0.1
-Nlim = 5
+Nlim = 3
 y1 = np.zeros((Nsub,Nlim))
 y1_lim = np.zeros(Nlim)
 y1_lim[Nlim-1] = value
@@ -94,7 +94,7 @@ for kk in np.arange(1,Nlim,1):
         count = count + 1
 
         for jj in np.arange(0,Ndim,1):
-            rv1 = norm(loc=np.log(markov_seed[jj]),scale=0.3)
+            rv1 = norm(loc=np.log(markov_seed[jj]),scale=0.75)
             prop = np.exp(rv1.rvs())
             # rv1 = uniform(loc=(np.log(inp1[ind_max,jj,kk])-prop_std_req[jj]),scale=(2*prop_std_req[jj]))
             # prop = np.exp(rv1.rvs())
@@ -124,14 +124,14 @@ for kk in np.arange(0,Nlim,1):
     cov_sq = cov_sq + ((1-Pi)/(Pi*Nsub))
 cov_req = np.sqrt(cov_sq)
 
-filename = 'SS_Run2.pickle'
-os.chdir('/home/dhullaks/projects/Small_Pf_code/src/Holes_SS2')
-with open(filename, 'wb') as f:
-    pickle.dump(y1, f)
-    pickle.dump(y1_lim, f)
-    pickle.dump(Pf, f)
-    pickle.dump(cov_req, f)
-    pickle.dump(Nlim, f)
-    pickle.dump(Nsub, f)
-    pickle.dump(Pi_sto, f)
-    pickle.dump(Indicator, f)
+# filename = 'SS_Run2.pickle'
+# os.chdir('/home/dhullaks/projects/Small_Pf_code/src/Holes_SS2')
+# with open(filename, 'wb') as f:
+#     pickle.dump(y1, f)
+#     pickle.dump(y1_lim, f)
+#     pickle.dump(Pf, f)
+#     pickle.dump(cov_req, f)
+#     pickle.dump(Nlim, f)
+#     pickle.dump(Nsub, f)
+#     pickle.dump(Pi_sto, f)
+#     pickle.dump(Indicator, f)

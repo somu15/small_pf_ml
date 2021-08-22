@@ -23,7 +23,7 @@ class MaterialModel:
         A = np.array([[1/Ex,-vxy/Ex,-vxz/Ez,0,0,0],[-vxy/Ex,1/Ex,-vxz/Ez,0,0,0],[-vxz/Ez,-vxz/Ez,1/Ez,0,0,0],[0,0,0,1/Gxz,0,0],[0,0,0,0,1/Gxz,0],[0,0,0,0,0,((2*(1+vxy))/Ex)]])
         A1 = np.linalg.inv(A)
 
-        file1 = open('/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder/Cylinder_HF_R1.i', 'r')
+        file1 = open('/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder/Cylinder_HF_R1.i', 'r')
         Lines = file1.readlines()
         Lines[97] = "    "+"value = '"+str(ux)+"'\n"
         Lines[103] = "    "+"value = '"+str(uy)+"'\n"
@@ -34,14 +34,14 @@ class MaterialModel:
         # Lines[145] = "    "+"y = '0.0 "+str(1/3*uz)+ " " +str(2/3*uz) + " " +str(uz)+"'\n"
         # Lines[152] = "    "+"C_ijkl = '"+str(A1[0,0])+" "+str(A1[0,1])+" "+str(A1[0,2])+" "+str(A1[2,2])+" "+str(A1[3,3])+"'\n"
 
-        file1 = open('/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder/Cylinder_HF_R1.i', 'w')
+        file1 = open('/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder/Cylinder_HF_R1.i', 'w')
         file1.writelines(Lines)
         file1.close()
 
-        os.chdir('/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder')
-        os.system('mpiexec -n 3 /home/dhullaks/projects/moose/modules/tensor_mechanics/tensor_mechanics-opt -i Cylinder_HF_R1.i')
+        os.chdir('/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder')
+        os.system('mpiexec -n 3 /Users/dhulls/projects/moose/modules/tensor_mechanics/tensor_mechanics-opt -i Cylinder_HF_R1.i')
 
-        path1 = '/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder/Cylinder_HF_R1.csv'
+        path1 = '/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder/Cylinder_HF_R1.csv'
         with open(path1) as csvfile:
             readCSV = csv.reader(csvfile, delimiter=',')
             Samp0 = []
@@ -60,7 +60,7 @@ class MaterialModel:
         A = np.array([[1/Ex,-vxy/Ex,-vxz/Ez,0,0,0],[-vxy/Ex,1/Ex,-vxz/Ez,0,0,0],[-vxz/Ez,-vxz/Ez,1/Ez,0,0,0],[0,0,0,1/Gxz,0,0],[0,0,0,0,1/Gxz,0],[0,0,0,0,0,((2*(1+vxy))/Ex)]])
         A1 = np.linalg.inv(A)
 
-        file1 = open('/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder/Cylinder_HF1_R1.i', 'r')
+        file1 = open('/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder/Cylinder_HF1_R1.i', 'r')
         Lines = file1.readlines()
         Lines[97] = "    "+"value = '"+str(ux)+"'\n"
         Lines[103] = "    "+"value = '"+str(uy)+"'\n"
@@ -71,14 +71,14 @@ class MaterialModel:
         # Lines[145] = "    "+"y = '0.0 "+str(1/3*uz)+ " " +str(2/3*uz) + " " +str(uz)+"'\n"
         # Lines[152] = "    "+"C_ijkl = '"+str(A1[0,0])+" "+str(A1[0,1])+" "+str(A1[0,2])+" "+str(A1[2,2])+" "+str(A1[3,3])+"'\n"
 
-        file1 = open('/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder/Cylinder_HF1_R1.i', 'w')
+        file1 = open('/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder/Cylinder_HF1_R1.i', 'w')
         file1.writelines(Lines)
         file1.close()
 
-        os.chdir('/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder')
-        os.system('mpiexec -n 3 /home/dhullaks/projects/moose/modules/tensor_mechanics/tensor_mechanics-opt -i Cylinder_HF1_R1.i')
+        os.chdir('/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder')
+        os.system('mpiexec -n 3 /Users/dhulls/projects/moose/modules/tensor_mechanics/tensor_mechanics-opt -i Cylinder_HF1_R1.i')
 
-        path1 = '/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder/Cylinder_HF1_R1.csv'
+        path1 = '/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder/Cylinder_HF1_R1.csv'
         with open(path1) as csvfile:
             readCSV = csv.reader(csvfile, delimiter=',')
             Samp0 = []
@@ -94,7 +94,7 @@ class MaterialModel:
 
     def LF1(self, E1, v1, ux, uy, uz):
 
-        file1 = open('/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder/Cylinder_LF1_R1.i', 'r')
+        file1 = open('/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder/Cylinder_LF1_R1.i', 'r')
         Lines = file1.readlines()
         Lines[97] = "    "+"value = '"+str(ux)+"'\n"
         Lines[103] = "    "+"value = '"+str(uy)+"'\n"
@@ -102,14 +102,14 @@ class MaterialModel:
         Lines[116] = "    "+"youngs_modulus = "+str(E1)+"\n"
         Lines[117] = "    "+"poissons_ratio = "+str(v1)+"\n"
 
-        file1 = open('/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder/Cylinder_LF1_R1.i', 'w')
+        file1 = open('/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder/Cylinder_LF1_R1.i', 'w')
         file1.writelines(Lines)
         file1.close()
 
-        os.chdir('/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder')
-        os.system('/home/dhullaks/projects/moose/modules/tensor_mechanics/tensor_mechanics-opt -i Cylinder_LF1_R1.i')
+        os.chdir('/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder')
+        os.system('/Users/dhulls/projects/moose/modules/tensor_mechanics/tensor_mechanics-opt -i Cylinder_LF1_R1.i')
 
-        path1 = '/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder/Cylinder_LF1_R1.csv'
+        path1 = '/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Cylinder/Cylinder_LF1_R1.csv'
         with open(path1) as csvfile:
             readCSV = csv.reader(csvfile, delimiter=',')
             Samp0 = []

@@ -32,33 +32,38 @@ from pyDOE import *
 
 Ndim = 8
 Ndim0 = 5
-value = 130.0
+value = 400.0
 
 LS1 = LSF()
 DR1 = DR()
 num_s = 500
 
+P = np.array([200,300,0.25,0.3,135,0.15,0.15,0.15])
+
 def Norm1(X1,X,dim):
     K = np.zeros((len(X1),dim))
     for ii in np.arange(0,dim,1):
-        K[:,ii] = np.reshape((np.log(X1[:,ii])-np.mean(np.log(X[:,ii])))/(np.std(np.log(X[:,ii]))),len(X1))
+        # K[:,ii] = np.reshape((np.log(X1[:,ii])-np.mean(np.log(X[:,ii])))/(np.std(np.log(X[:,ii]))),len(X1))
+        K[:,ii] = X1[:,ii]/X[ii]
     return K
 
-def Norm2(X1,X):
-    return (np.log(X1)-np.mean(np.log(X)))/(np.std(np.log(X)))
-
-# def InvNorm1(X1,X):
-#     return X1 # (X1*np.std(X,axis=0)+np.mean(X,axis=0))
-
-def InvNorm2(X1,X):
-    return np.exp(X1*np.std(np.log(X))+np.mean(np.log(X)))
+# def Norm2(X1,X):
+#     return (np.log(X1)-np.mean(np.log(X)))/(np.std(np.log(X)))
+#
+# # def InvNorm1(X1,X):
+# #     return X1 # (X1*np.std(X,axis=0)+np.mean(X,axis=0))
+#
+# def InvNorm2(X1,X):
+#     return np.exp(X1*np.std(np.log(X))+np.mean(np.log(X)))
 
 
 def Norm3(X1,X):
-    return ((X1)-np.mean((X)))/(np.std((X)))
+    # return ((X1)-np.mean((X)))/(np.std((X)))
+    return (X1/400)
 
 def InvNorm3(X1,X):
-    return (X1*np.std((X))+np.mean((X)))
+    # return (X1*np.std((X))+np.mean((X)))
+    return (X1*400)
 
 ## Train the GP diff model
 
@@ -72,7 +77,7 @@ inp_GPtrain0 = lhd0
 y_LF_GP = LS1.Material_LF1(inp_GPtrain0)
 y_HF_GP = LS1.Material_HF1(inp_GPtrain)
 y_GPtrain = y_HF_GP - y_LF_GP
-ML = ML_TF(obs_ind = Norm1(inp_GPtrain,inp_GPtrain, Ndim), obs = Norm3(y_GPtrain,y_GPtrain))
+ML = ML_TF(obs_ind = Norm1(inp_GPtrain,P, Ndim), obs = Norm3(y_GPtrain,y_GPtrain))
 amp1, len1 = ML.GP_train(amp_init=1., len_init=1., num_iters = 1000)
 
 ## Subset simultion with HF-LF and GP
@@ -107,7 +112,7 @@ for ii in np.arange(0,Nsub,1):
     # GP_diff = ML.GP_predict_mean(amplitude_var = amp1, length_scale_var=len1, pred_ind = Norm1(inp_HF[None,:],inp_GPtrain,Ndim)).reshape(1)
     # additive = value
     # u_check = (np.abs(LF + GP_diff-additive))/ML.GP_predict_std(amplitude_var = amp1, length_scale_var=len1, pred_ind = Norm1(inp_HF[None,:],inp_GPtrain,Ndim)).reshape(1)
-    samples1 = ML.GP_predict(amplitude_var = amp1, length_scale_var=len1, pred_ind = Norm1(inp_HF[None,:],inp_GPtrain,Ndim), num_samples=num_s)
+    samples1 = ML.GP_predict(amplitude_var = amp1, length_scale_var=len1, pred_ind = Norm1(inp_HF[None,:],P,Ndim), num_samples=num_s)
     GP_diff = InvNorm3(np.mean(np.array(samples1),axis=0),y_GPtrain)
     additive = value
     u_check = (np.abs(LF + GP_diff - additive))/np.std(InvNorm3(np.array(samples1),y_GPtrain),axis=0)
@@ -126,18 +131,19 @@ for ii in np.arange(0,Nsub,1):
         y1[ii,0] = LF + GP_diff
     else:
         y1[ii,0] = np.array((LS1.Material_HF1(inp_HF[None,:]))).reshape(1)
-        inp_GPtrain = np.concatenate((inp_GPtrain, inp_HF[None,:].reshape(1,Ndim)))
-        y_LF_GP = np.concatenate((y_LF_GP, np.array(LF).reshape(1)))
-        y_HF_GP = np.concatenate((y_HF_GP, y1[ii,0].reshape(1)))
-        y_GPtrain = np.concatenate((y_GPtrain, (y1[ii,0].reshape(1)-LF)))
-        LF_plus_GP = np.concatenate((LF_plus_GP, (LF + np.array(GP_diff).reshape(1))))
-        GP_pred = np.concatenate((GP_pred, (np.array(GP_diff).reshape(1))))
-        # ML = ML_TF(obs_ind = (np.array(inp_GPtrain))[:,:,0], obs = (np.array(y_HF_GP)[:,:,0]-np.array(y_LF_GP)[:,:,0])[:,0])
-        ML = ML_TF(obs_ind = Norm1(inp_GPtrain,inp_GPtrain,Ndim), obs = Norm3(y_GPtrain,y_GPtrain))
-        amp1, len1 = ML.GP_train(amp_init=amp1, len_init=len1, num_iters = Iters)
-        subs_info[ii,0] = 1.0
+        if y1[ii,0] > 0.1:
+            inp_GPtrain = np.concatenate((inp_GPtrain, inp_HF[None,:].reshape(1,Ndim)))
+            y_LF_GP = np.concatenate((y_LF_GP, np.array(LF).reshape(1)))
+            y_HF_GP = np.concatenate((y_HF_GP, y1[ii,0].reshape(1)))
+            y_GPtrain = np.concatenate((y_GPtrain, (y1[ii,0].reshape(1)-LF)))
+            LF_plus_GP = np.concatenate((LF_plus_GP, (LF + np.array(GP_diff).reshape(1))))
+            GP_pred = np.concatenate((GP_pred, (np.array(GP_diff).reshape(1))))
+            # ML = ML_TF(obs_ind = (np.array(inp_GPtrain))[:,:,0], obs = (np.array(y_HF_GP)[:,:,0]-np.array(y_LF_GP)[:,:,0])[:,0])
+            ML = ML_TF(obs_ind = Norm1(inp_GPtrain,P,Ndim), obs = Norm3(y_GPtrain,y_GPtrain))
+            amp1, len1 = ML.GP_train(amp_init=amp1, len_init=len1, num_iters = Iters)
+            subs_info[ii,0] = 1.0
 
-std_GPdiff = np.delete(std_GPdiff, 0)
+# std_GPdiff = np.delete(std_GPdiff, 0)
 LF_plus_GP = np.delete(LF_plus_GP, 0)
 GP_pred = np.delete(GP_pred, 0)
 
@@ -149,8 +155,12 @@ seeds0 = np.zeros((int(Psub*Nsub),Ndim0))
 markov_seed = np.zeros(Ndim)
 markov_seed0 = np.zeros(Ndim0)
 markov_out = 0.0
+u_req = np.zeros(Nsub)
+u_check1 = 10.0
 
-prop_std = np.array([1.0,1.0,1.0,1.0,1.0])
+# prop_std = np.array([0.4,0.4,0.4,0.4,0.4,0.75,0.75,0.75])
+prop_std = np.array([0.75,0.75,0.75,0.75,0.75,1.0,1.0,1.0])
+factor1 = np.array([2.0,2.0,1.5,1.0])
 ind_LF = [0,2,5,6,7]
 inpp = np.zeros((1,Ndim))
 for kk in np.arange(1,Nlim,1):
@@ -190,28 +200,19 @@ for kk in np.arange(1,Nlim,1):
         count = count + 1
 
         for jj in np.arange(0,Ndim,1):
-            rv1 = norm(loc=np.log(markov_seed[jj]),scale=0.75)
+            rv1 = norm(loc=np.log(markov_seed[jj]),scale=0.75) # (factor1[kk]*prop_std[jj])
             prop = np.exp(rv1.rvs())
-            # rv1 = norm(loc=np.log(inp1[ind_max,jj,kk]),scale=prop_std_req[jj])
-            # prop = np.exp(rv1.rvs())
-            # rv1 = uniform(loc=(np.log(inp1[ind_max,jj,kk])-prop_std_req[jj]),scale=(2*prop_std_req[jj]))
-            # prop = np.exp(rv1.rvs())
+            
             r = np.log(DR1.MaterialPDF(rv_req=prop, index=jj, LF=0)) - np.log(DR1.MaterialPDF(rv_req=(markov_seed[jj]),index=jj,LF=0)) # np.log(rv.pdf((prop)))-np.log(rv.pdf((inp1[ind_max,jj,kk])))
             if r>np.log(uni.rvs()):
                 nxt[0,jj] = prop
             else:
                 nxt[0,jj] = markov_seed[jj]
             inpp[0,jj] = nxt[0,jj]
-        # samples0 = ML0.GP_predict(amplitude_var = amp0, length_scale_var=len0, observation_noise_variance_var=var0, pred_ind = Norm1(inpp,inp_LFtrain,Ndim), num_samples=num_s)
-        # LF = np.array(InvNorm2(np.mean(np.array(samples0),axis=0),y_HF_LFtrain))
+        
         LF = LS1.Material_LF1(inpp[0,ind_LF].reshape(1,Ndim0))
-        # samples1 = ML.GP_predict(amplitude_var = amp1, length_scale_var=len1, observation_noise_variance_var=var1, pred_ind = Norm1(inpp,inp_GPtrain,Ndim), num_samples=num_s)
-        # GP_diff = InvNorm3(np.mean(np.array(samples1),axis=0),y_GPtrain)
-
-        # GP_diff = ML.GP_predict_mean(amplitude_var = amp1, length_scale_var=len1, pred_ind = Norm1(inpp,inp_GPtrain,Ndim)).reshape(1)
-        # additive = y1_lim[kk-1]
-        # u_check = (np.abs(LF + GP_diff-additive))/ML.GP_predict_std(amplitude_var = amp1, length_scale_var=len1, pred_ind = Norm1(inpp,inp_GPtrain,Ndim)).reshape(1)
-        samples1 = ML.GP_predict(amplitude_var = amp1, length_scale_var=len1, pred_ind = Norm1(inp_HF[None,:],inp_GPtrain,Ndim), num_samples=num_s)
+        
+        samples1 = ML.GP_predict(amplitude_var = amp1, length_scale_var=len1, pred_ind = Norm1(inpp,P,Ndim), num_samples=num_s)
         GP_diff = InvNorm3(np.mean(np.array(samples1),axis=0),y_GPtrain)
         additive = y1_lim[kk-1]
         u_check = (np.abs(LF + GP_diff - additive))/np.std(InvNorm3(np.array(samples1),y_GPtrain),axis=0)
@@ -219,27 +220,28 @@ for kk in np.arange(1,Nlim,1):
         u_GP[ii,kk] = u_check
         u_lim = u_lim_vec[kk]
 
-        # additive = y1_lim[kk-1]
-        # u_check = (np.abs(LF + GP_diff - additive))/np.std(InvNorm3(np.array(samples1),y_GPtrain),axis=0)
-        # u_GP = np.concatenate((u_GP, np.array(u_check).reshape(1)))
-        # std_GPdiff = np.concatenate((std_GPdiff, np.array(np.std(InvNorm3(np.array(samples1),y_GPtrain),axis=0)).reshape(1)))
-        # u_lim = u_lim_vec[0]
         print(ii)
         print(kk)
-        if u_check > u_lim: # and ii > (int(Psub*Nsub)+num_retrain):
+        if kk == (Nlim-1):
+            additive = value
+            u_check1 = (np.abs(LF + GP_diff-additive))/np.std(InvNorm3(np.array(samples1),y_GPtrain),axis=0)
+            u_req[ii] = u_check1
+
+        if u_check > u_lim and u_check1 >= u_lim:
             y_nxt = LF + GP_diff
         else:
             y_nxt = np.array((LS1.Material_HF1(inpp))).reshape(1)
-            inp_GPtrain = np.concatenate((inp_GPtrain, inpp.reshape(1,Ndim)))
-            y_LF_GP = np.concatenate((y_LF_GP, np.array(LF).reshape(1)))
-            y_HF_GP = np.concatenate((y_HF_GP, y_nxt.reshape(1)))
-            y_GPtrain = np.concatenate((y_GPtrain, (y_nxt.reshape(1)-LF)))
-            LF_plus_GP = np.concatenate((LF_plus_GP, (LF + np.array(GP_diff).reshape(1))))
-            GP_pred = np.concatenate((GP_pred, (np.array(GP_diff).reshape(1))))
-            # ML = ML_TF(obs_ind = (np.array(inp_GPtrain))[:,:,0], obs = (np.array(y_HF_GP)[:,:,0]-np.array(y_LF_GP)[:,:,0])[:,0])
-            ML = ML_TF(obs_ind = Norm1(inp_GPtrain,inp_GPtrain,Ndim), obs = Norm3(y_GPtrain,y_GPtrain))
-            amp1, len1 = ML.GP_train(amp_init=amp1, len_init=len1, num_iters = Iters)
-            subs_info[ii,kk] = 1.0
+            if y_nxt > 0.1:
+                inp_GPtrain = np.concatenate((inp_GPtrain, inpp.reshape(1,Ndim)))
+                y_LF_GP = np.concatenate((y_LF_GP, np.array(LF).reshape(1)))
+                y_HF_GP = np.concatenate((y_HF_GP, y_nxt.reshape(1)))
+                y_GPtrain = np.concatenate((y_GPtrain, (y_nxt.reshape(1)-LF)))
+                LF_plus_GP = np.concatenate((LF_plus_GP, (LF + np.array(GP_diff).reshape(1))))
+                GP_pred = np.concatenate((GP_pred, (np.array(GP_diff).reshape(1))))
+                # ML = ML_TF(obs_ind = (np.array(inp_GPtrain))[:,:,0], obs = (np.array(y_HF_GP)[:,:,0]-np.array(y_LF_GP)[:,:,0])[:,0])
+                ML = ML_TF(obs_ind = Norm1(inp_GPtrain,P,Ndim), obs = Norm3(y_GPtrain,y_GPtrain))
+                amp1, len1 = ML.GP_train(amp_init=amp1, len_init=len1, num_iters = Iters)
+                subs_info[ii,kk] = 1.0
 
         if (y_nxt)>y1_lim[kk-1]:
             inp1[ii,:,kk] = inpp
@@ -262,22 +264,22 @@ for kk in np.arange(0,Nlim,1):
     cov_sq = cov_sq + ((1-Pi)/(Pi*Nsub))
 cov_req = np.sqrt(cov_sq)
 
-filename = 'Alg_Run1.pickle'
-os.chdir('/home/dhullaks/projects/Small_Pf_code/src/Material_Alg1')
-with open(filename, 'wb') as f:
-    pickle.dump(y1, f)
-    pickle.dump(y1_lim, f)
-    pickle.dump(Pf, f)
-    pickle.dump(cov_req, f)
-    pickle.dump(Nlim, f)
-    pickle.dump(Nsub, f)
-    pickle.dump(Pi_sto, f)
-    pickle.dump(u_GP, f)
-    pickle.dump(subs_info, f)
-    pickle.dump(y_GPtrain, f)
-    pickle.dump(y_HF_GP, f)
-    pickle.dump(y_LF_GP, f)
-    pickle.dump(Indicator, f)
+# filename = 'Alg_Run1.pickle'
+# os.chdir('/home/dhullaks/projects/Small_Pf_code/src/Material_Alg1')
+# with open(filename, 'wb') as f:
+#     pickle.dump(y1, f)
+#     pickle.dump(y1_lim, f)
+#     pickle.dump(Pf, f)
+#     pickle.dump(cov_req, f)
+#     pickle.dump(Nlim, f)
+#     pickle.dump(Nsub, f)
+#     pickle.dump(Pi_sto, f)
+#     pickle.dump(u_GP, f)
+#     pickle.dump(subs_info, f)
+#     pickle.dump(y_GPtrain, f)
+#     pickle.dump(y_HF_GP, f)
+#     pickle.dump(y_LF_GP, f)
+#     pickle.dump(Indicator, f)
 
 # # req = 2.425e-04 (1000 sims per subset and 4 subsets; Num HF = 86; value=800)
 

@@ -17,20 +17,20 @@ class HolesModel:
 
     def HF(self, E1, v1, ux):
 
-        file1 = open('/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Holes/HF_R4.i', 'r')
+        file1 = open('/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Holes/HF_R4.i', 'r')
         Lines = file1.readlines()
         Lines[101] = "    "+"value = '"+str(ux)+"'\n"
         Lines[114] = "    "+"youngs_modulus = "+str(E1)+"\n"
         Lines[115] = "    "+"poissons_ratio = "+str(v1)+"\n"
 
-        file1 = open('/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Holes/HF_R4.i', 'w')
+        file1 = open('/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Holes/HF_R4.i', 'w')
         file1.writelines(Lines)
         file1.close()
 
-        os.chdir('/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Holes')
-        os.system('mpiexec -n 3 /home/dhullaks/projects/moose/modules/tensor_mechanics/tensor_mechanics-opt -i HF_R4.i')
+        os.chdir('/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Holes')
+        os.system('mpiexec -n 3 /Users/dhulls/projects/moose/modules/tensor_mechanics/tensor_mechanics-opt -i HF_R4.i')
 
-        path1 = '/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Holes/HF_R4.csv'
+        path1 = '/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Holes/HF_R4.csv'
         with open(path1) as csvfile:
             readCSV = csv.reader(csvfile, delimiter=',')
             Samp0 = []
@@ -46,20 +46,20 @@ class HolesModel:
 
     def HF1(self, E1, v1, ux):
 
-        file1 = open('/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Holes/HF1_R4.i', 'r')
+        file1 = open('/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Holes/HF1_R4.i', 'r')
         Lines = file1.readlines()
         Lines[101] = "    "+"value = '"+str(ux)+"'\n"
         Lines[114] = "    "+"youngs_modulus = "+str(E1)+"\n"
         Lines[115] = "    "+"poissons_ratio = "+str(v1)+"\n"
 
-        file1 = open('/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Holes/HF1_R4.i', 'w')
+        file1 = open('/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Holes/HF1_R4.i', 'w')
         file1.writelines(Lines)
         file1.close()
 
-        os.chdir('/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Holes')
-        os.system('mpiexec -n 3 /home/dhullaks/projects/moose/modules/tensor_mechanics/tensor_mechanics-opt -i HF1_R4.i')
+        os.chdir('/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Holes')
+        os.system('mpiexec -n 3 /Users/dhulls/projects/moose/modules/tensor_mechanics/tensor_mechanics-opt -i HF1_R4.i')
 
-        path1 = '/home/dhullaks/projects/moose/modules/tensor_mechanics/test/tests/0_Holes/HF1_R4.csv'
+        path1 = '/Users/dhulls/projects/moose/modules/tensor_mechanics/test/tests/0_Holes/HF1_R4.csv'
         with open(path1) as csvfile:
             readCSV = csv.reader(csvfile, delimiter=',')
             Samp0 = []

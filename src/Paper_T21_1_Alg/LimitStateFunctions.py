@@ -33,6 +33,6 @@ class LimitStateFunctions:
         TM1 = TM()
 
         for ii in np.arange(0,siz1,1):
-            out1[ii] = (TM1.Triso_1d(Input_vec[ii,0],Input_vec[ii,1],Input_vec[ii,2],Input_vec[ii,3],Input_vec[ii,4],Input_vec[ii,5],Input_vec[ii,6]))
+            out1[ii] = (TM1.Triso_1d(Input_vec[ii,0],Input_vec[ii,1],Input_vec[ii,2],Input_vec[ii,3],Input_vec[ii,4],Input_vec[ii,5],Input_vec[ii,6])) # ,Input_vec[ii,7]
 
         return out1
